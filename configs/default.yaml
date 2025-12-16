@@ -1,0 +1,21 @@
+medcat:
+  enabled: true
+  modelpack_path: ${MEDCAT_MODELPACK}
+
+quickumls:
+  enabled: true
+  index_dir: ${QUICKUMLS_INDEX_DIR}
+  threshold: 0.7
+  similarity_name: jaccard
+  window: 5
+  best_match: true
+
+kmbert_ner:
+  enabled: true
+  model_dir: ${KMBERT_NER_DIR}
+  aggregation_strategy: simple
+
+output:
+  out_dir: ./outputs
+  save_json: true
+  save_jsonl: true

@@ -1,0 +1,52 @@
+paths:
+  root: ./data
+  corpus:
+    train_source: ./data/corpus/train_source
+    train_qa: ./data/corpus/train_qa
+    val_qa: ./data/corpus/val_qa
+  index:
+    train_source: ./data/index/train_source
+    train_qa: ./data/index/train_qa
+    val_qa: ./data/index/val_qa
+  labels: ./data/labels
+
+ingestion:
+  prefer_jsonl: true
+  jsonl_globs:
+  - '**/*.jsonl'
+  faiss_globs:
+  - '**/*.faiss'
+  - '**/*.index'
+
+chunking:
+  strategy: sliding_window
+  chunk_size: 900
+  chunk_overlap: 200
+
+embedding:
+  provider: openai
+  model: text-embedding-3-large
+  batch_size: 128
+  normalize: true
+
+index:
+  type: faiss
+  metric: ip
+  shards: 1
+  rebuild_if_missing: true
+
+retrieval:
+  multi:
+    retrievers:
+    - name: train_qa
+      k: 8
+      weight: 1.0
+    - name: train_source
+      k: 5
+      weight: 0.7
+    fusion: rrf
+    rrf_k: 60
+  bm25_corpus_path: ./data/corpus/train_qa/train_questions.index.jsonl
+  faiss_index_path: ./data/index/train_qa/train_questions.index.faiss
+  faiss_meta_path: ./data/index/train_qa/train_questions.meta.jsonl
+

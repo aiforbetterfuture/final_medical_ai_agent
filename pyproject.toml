@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "final-medical-ai-agent"
+version = "1.0.0"
+description = "의학 지식 AI 에이전트 - MedCAT/QuickUMLS/KM-BERT 엔티티 추출 비교 및 RAG 기반 의학 지식 시스템"
+requires-python = ">=3.10"
+dependencies = []
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]

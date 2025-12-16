@@ -1,0 +1,27 @@
+features:
+  self_refine_enabled: true          # 내부 셀프 리파인 루프 on/off
+  max_refine_iterations: 2           # refine/retrieve 반복 최대 횟수
+  dynamic_rag_routing: true          # 질문 유형별 라우팅 사용 여부
+  medcat2_enabled: true              # MedCAT2 엔티티 추출 on/off
+  memory_mode: structured            # structured | none
+  query_rewrite_enabled: true        # 슬롯/프로필을 활용한 질의 재작성 on/off
+  top_k: 8                           # 기본 검색 k
+
+routing:
+  default:
+    bm25_corpus_path: ./data/corpus/train_qa/train_questions.index.jsonl
+    faiss_index_path: ./data/index/train_qa/train_questions.index.faiss
+    faiss_meta_path: ./data/index/train_qa/train_questions.meta.jsonl
+  symptom:
+    bm25_corpus_path: ./data/corpus/train_source/train_source_data.index.jsonl
+    faiss_index_path: ./data/index/train_source/train_source_data.index.faiss
+    faiss_meta_path: ./data/index/train_source/train_source_data.meta.jsonl
+  medication:
+    bm25_corpus_path: ./data/corpus/train_source/train_source_data.index.jsonl
+    faiss_index_path: ./data/index/train_source/train_source_data.index.faiss
+    faiss_meta_path: ./data/index/train_source/train_source_data.meta.jsonl
+  guideline:
+    bm25_corpus_path: ./data/corpus/val_qa/val_questions.index.jsonl
+    faiss_index_path: ./data/index/val_qa/val_questions.index.faiss
+    faiss_meta_path: ./data/index/val_qa/val_questions.meta.jsonl
+

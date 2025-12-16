@@ -1,0 +1,59 @@
+# Core runtime
+pyyaml>=6.0
+python-dotenv>=1.0.0
+
+# LLM APIs
+openai>=1.0.0
+google-generativeai>=0.3.0
+
+# LangGraph
+langgraph>=0.0.20
+langchain>=0.1.0
+langchain-openai>=0.1.0
+
+# Retrieval
+faiss-cpu>=1.7.4
+rank-bm25>=0.2.2
+numpy>=1.24.0
+sentence-transformers>=2.2.0
+
+# Medical entity extraction
+# Note: medcat 2.x requires pydantic>=2.0 and spacy>=3.8
+medcat>=2.0
+spacy>=3.8
+peft>=0.10.0
+
+# Medical entity extraction comparison (MedCAT, QuickUMLS, KM-BERT)
+# MedCAT for UMLS-based concept extraction
+medcat>=2.6.0
+# QuickUMLS for approximate string matching
+quickumls>=1.4.0
+# Transformers for KM-BERT NER
+transformers>=4.41.0
+torch>=2.1.0
+datasets>=2.19.0
+accelerate>=0.33.0
+evaluate>=0.4.2
+seqeval>=1.2.2
+
+# Multilingual translation (Helsinki-NLP opus-mt)
+langdetect>=1.0.9
+sentencepiece>=0.1.99
+
+# Evaluation metrics (RAGAS)
+ragas>=0.1.0
+
+# Optional: Web UI
+streamlit>=1.28.0
+
+# Data processing
+pandas>=2.2.0
+
+# Utilities
+tqdm>=4.65.0
+rich>=13.7.0
+
+# API server
+fastapi>=0.111.0
+uvicorn>=0.30.0
+

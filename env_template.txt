@@ -1,0 +1,82 @@
+# ===================================================================
+# 의학 지식 AI 에이전트 환경 변수 설정
+# ===================================================================
+# 
+# 사용법:
+# 1. 이 파일을 .env로 복사: copy env_template.txt .env
+# 2. 아래 값들을 실제 값으로 변경
+# 3. .env 파일은 절대 Git에 커밋하지 마세요!
+#
+# ===================================================================
+
+# -------------------------------------------------------------------
+# MedCAT 설정 (⭐ 필수)
+# -------------------------------------------------------------------
+
+# MedCAT 모델팩 경로 (절대 경로 사용 권장)
+MEDCAT2_MODEL_PATH=C:\Users\KHIDI\Downloads\final_medical_ai_agent\medcat2\mc_modelpack_snomed_int_16_mar_2022_25be3857ba34bdd5
+
+# MedCAT Confidence Threshold (0.0-1.0)
+MEDCAT_CONFIDENCE_THRESHOLD=0.5
+
+# -------------------------------------------------------------------
+# OpenAI API 설정 (⭐ 필수)
+# -------------------------------------------------------------------
+
+# OpenAI API 키
+OPENAI_API_KEY=your_openai_api_key_here
+
+# 사용할 LLM 모델
+LLM_MODEL=gpt-4o-mini
+
+# 임베딩 모델
+EMBEDDING_MODEL=text-embedding-3-large
+
+# -------------------------------------------------------------------
+# Google API 설정 (선택적)
+# -------------------------------------------------------------------
+
+# Google Translate API 키 (한국어 번역용)
+GOOGLE_API_KEY=your_google_api_key_here
+
+# Google Gemini API 키 (대안 LLM)
+GEMINI_API_KEY=your_gemini_api_key_here
+
+# -------------------------------------------------------------------
+# 데이터 경로 설정
+# -------------------------------------------------------------------
+
+DATA_ROOT=./data
+CORPUS_PATH=./data/corpus
+INDEX_PATH=./data/index
+PATIENT_DATA_PATH=./data/patients
+
+# -------------------------------------------------------------------
+# 실험 설정
+# -------------------------------------------------------------------
+
+EXPERIMENT_OUTPUT_DIR=./runs
+LOG_LEVEL=INFO
+RANDOM_SEED=42
+
+# -------------------------------------------------------------------
+# Feature Flags (Ablation 실험용)
+# -------------------------------------------------------------------
+
+SELF_REFINE_ENABLED=true
+MAX_REFINE_ITERATIONS=2
+QUALITY_THRESHOLD=0.5
+RETRIEVAL_MODE=hybrid
+USE_DUAL_INDEX=true
+RERANKING_ENABLED=false
+
+# -------------------------------------------------------------------
+# 고급 설정
+# -------------------------------------------------------------------
+
+TOKEN_BUDGET=3000
+TEMPERATURE=0.2
+MAX_TOKENS=800
+RETRIEVAL_TOP_K=10
+RRF_K=60
+
