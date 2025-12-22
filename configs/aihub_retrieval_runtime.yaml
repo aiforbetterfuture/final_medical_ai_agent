@@ -1,0 +1,27 @@
+# configs/aihub_retrieval_runtime.yaml
+# AIHub 71874 retrieval runtime fixed settings (reproducible)
+
+paths_config: configs/aihub_71874_paths.yaml
+
+ts_index: ts_coarse
+tl_index: tl_coarse
+backend: flat
+
+# candidate pools (search)
+kdoc: 30        # TL 후보 풀 (meta rank 기반)
+kts_pool: 4     # TS 후보 풀 (base@kts_pool로 support 측정하던 값)
+
+# fusion selection (context assembled)
+fusion_mode: quota
+out_k: 22
+
+tl_quota: 20
+ts_quota: 2
+quota_strategy: tl_first
+
+rrf_k: 60
+
+no_self_hit_tl: true
+
+# optional: for debugging
+verbose: false

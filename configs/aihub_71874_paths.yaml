@@ -1,0 +1,90 @@
+dataset: aihub_71874
+version: v1
+
+# 로컬 데이터 경로 (사용자 제공)
+local_paths:
+  TS_dirs:
+    - "C:/Users/KHIDI/Downloads/08.전문 의학지식 데이터/Training/01.원천데이터/TS_국문_기타"
+    - "C:/Users/KHIDI/Downloads/08.전문 의학지식 데이터/Training/01.원천데이터/TS_영문_온라인 의료 정보 제공 사이트"
+    - "C:/Users/KHIDI/Downloads/08.전문 의학지식 데이터/Training/01.원천데이터/TS_영문_국제기관 가이드라인"
+    - "C:/Users/KHIDI/Downloads/08.전문 의학지식 데이터/Training/01.원천데이터/TS_영문_학회 가이드라인"
+    - "C:/Users/KHIDI/Downloads/08.전문 의학지식 데이터/Training/01.원천데이터/TS_국문_온라인 의료 정보 제공 사이트"
+    - "C:/Users/KHIDI/Downloads/08.전문 의학지식 데이터/Training/01.원천데이터/TS_국문_학회 가이드라인"
+    - "C:/Users/KHIDI/Downloads/08.전문 의학지식 데이터/Training/01.원천데이터/TS_영문_기타"
+    - "C:/Users/KHIDI/Downloads/08.전문 의학지식 데이터/Training/01.원천데이터/TS_국문_학술 논문 및 저널"
+    - "C:/Users/KHIDI/Downloads/08.전문 의학지식 데이터/Training/01.원천데이터/TS_영문_의학 교과서"
+    - "C:/Users/KHIDI/Downloads/08.전문 의학지식 데이터/Training/01.원천데이터/TS_영문_학술 논문 및 저널"
+    - "C:/Users/KHIDI/Downloads/08.전문 의학지식 데이터/Training/01.원천데이터/TS_국문_의학 교과서"
+
+  TL_dirs:
+    - "C:/Users/KHIDI/Downloads/08.전문 의학지식 데이터/Training/02.라벨링데이터/TL_마취통증의학과"
+    - "C:/Users/KHIDI/Downloads/08.전문 의학지식 데이터/Training/02.라벨링데이터/TL_신경과신경외과"
+    - "C:/Users/KHIDI/Downloads/08.전문 의학지식 데이터/Training/02.라벨링데이터/TL_피부과"
+    - "C:/Users/KHIDI/Downloads/08.전문 의학지식 데이터/Training/02.라벨링데이터/TL_비뇨의학과"
+    - "C:/Users/KHIDI/Downloads/08.전문 의학지식 데이터/Training/02.라벨링데이터/TL_안과"
+    - "C:/Users/KHIDI/Downloads/08.전문 의학지식 데이터/Training/02.라벨링데이터/TL_예방의학"
+    - "C:/Users/KHIDI/Downloads/08.전문 의학지식 데이터/Training/02.라벨링데이터/TL_외과"
+    - "C:/Users/KHIDI/Downloads/08.전문 의학지식 데이터/Training/02.라벨링데이터/TL_의료법규"
+    - "C:/Users/KHIDI/Downloads/08.전문 의학지식 데이터/Training/02.라벨링데이터/TL_이비인후과"
+    - "C:/Users/KHIDI/Downloads/08.전문 의학지식 데이터/Training/02.라벨링데이터/TL_정신건강의학과"
+    - "C:/Users/KHIDI/Downloads/08.전문 의학지식 데이터/Training/02.라벨링데이터/TL_기타"
+    - "C:/Users/KHIDI/Downloads/08.전문 의학지식 데이터/Training/02.라벨링데이터/TL_병리과"
+    - "C:/Users/KHIDI/Downloads/08.전문 의학지식 데이터/Training/02.라벨링데이터/TL_방사선종양학과"
+
+  VL_dirs:
+    - "C:/Users/KHIDI/Downloads/08.전문 의학지식 데이터/Validation/02.검증용_라벨링데이터/VL_외과"
+    - "C:/Users/KHIDI/Downloads/08.전문 의학지식 데이터/Validation/02.검증용_라벨링데이터/VL_의료법규"
+    - "C:/Users/KHIDI/Downloads/08.전문 의학지식 데이터/Validation/02.검증용_라벨링데이터/VL_이비인후과"
+    - "C:/Users/KHIDI/Downloads/08.전문 의학지식 데이터/Validation/02.검증용_라벨링데이터/VL_피부과"
+    - "C:/Users/KHIDI/Downloads/08.전문 의학지식 데이터/Validation/02.검증용_라벨링데이터/VL_기타"
+    - "C:/Users/KHIDI/Downloads/08.전문 의학지식 데이터/Validation/02.검증용_라벨링데이터/VL_안과"
+    - "C:/Users/KHIDI/Downloads/08.전문 의학지식 데이터/Validation/02.검증용_라벨링데이터/VL_마취통증의학과"
+    - "C:/Users/KHIDI/Downloads/08.전문 의학지식 데이터/Validation/02.검증용_라벨링데이터/VL_방사선종양학과"
+    - "C:/Users/KHIDI/Downloads/08.전문 의학지식 데이터/Validation/02.검증용_라벨링데이터/VL_병리과"
+    - "C:/Users/KHIDI/Downloads/08.전문 의학지식 데이터/Validation/02.검증용_라벨링데이터/VL_비뇨의학과"
+    - "C:/Users/KHIDI/Downloads/08.전문 의학지식 데이터/Validation/02.검증용_라벨링데이터/VL_정신건강의학과"
+    - "C:/Users/KHIDI/Downloads/08.전문 의학지식 데이터/Validation/02.검증용_라벨링데이터/VL_신경과신경외과"
+    - "C:/Users/KHIDI/Downloads/08.전문 의학지식 데이터/Validation/02.검증용_라벨링데이터/VL_예방의학"
+
+output:
+  root: "data/aihub_71874"
+  processed_dir: "data/aihub_71874/processed"
+  index_dir: "data/aihub_71874/indexes"
+  extracted_cache_dir: "data/_extracted_cache"
+
+embedding:
+  model_name: "intfloat/multilingual-e5-base"
+  batch_size: 64
+  normalize: true
+
+# tokenizer 기반 토큰 청킹(임베딩 모델 토크나이저 기준)
+chunking:
+  TS:
+    coarse_max_tokens: 256
+    fine_defaults:
+      max_tokens: 600
+      overlap_tokens: 80
+    fine_by_source_type:
+      guideline: {max_tokens: 900, overlap_tokens: 120}
+      textbook: {max_tokens: 900, overlap_tokens: 120}
+      paper_journal: {max_tokens: 650, overlap_tokens: 100}
+      web_medinfo: {max_tokens: 500, overlap_tokens: 80}
+      other: {max_tokens: 400, overlap_tokens: 60}
+  TL:
+    # TL은 청킹하지 않고 문항 단위 유지
+    atomic: true
+    mcq_split: true
+  VL:
+    question_only: true
+
+indexing:
+  backend: "flat"
+  space: "cosine"
+  ef_construction: 200
+  M: 32
+  ef_search: 100
+
+build:
+  # 코퍼스/인덱스를 분할(shard)하고 싶다면 값 조정
+  shard_size: 200000   # records
+  resume: true

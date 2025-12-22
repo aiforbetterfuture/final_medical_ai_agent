@@ -1,0 +1,55 @@
+{
+  "config": "configs\\aihub_71874_paths.yaml",
+  "evalset": "experiments\\retrieval_tuning\\eval_tl.jsonl",
+  "rows_seen": 200,
+  "rows_used": 200,
+  "missing_qa_id_rows": 0,
+  "model_name": "intfloat/multilingual-e5-base",
+  "args": {
+    "kts": 4,
+    "kdoc": 30,
+    "out_k": 20,
+    "backend": "auto",
+    "no_self_hit": true,
+    "fusion_mode": "quota",
+    "rrf_k": 60,
+    "tl_quota": 20,
+    "ts_quota": 0,
+    "quota_strategy": "interleave"
+  },
+  "diagnostics": {
+    "tl_top1_self_hit_raw_rate": 1.0,
+    "tl_top1_self_hit_after_filter_rate": 0.0,
+    "self_skipped_total": 200
+  },
+  "results": {
+    "ts_support_rate": 0.065,
+    "tl_qaid_hit_rate": 0.0,
+    "tl_domain_hit_rate": 0.965,
+    "tl_domain_qtype_hit_rate": 0.925,
+    "fused_any_rate": 0.905,
+    "fused_domain_qtype_rate": 0.905,
+    "tl_domain_qtype_rank_hist": {
+      "1": 110,
+      "2": 24,
+      "3": 14,
+      "4": 5,
+      "5": 3,
+      "6": 5,
+      "7": 2,
+      "8": 2,
+      "9": 3,
+      "10": 2,
+      "11": 1,
+      "12": 2,
+      "14": 2,
+      "15": 2,
+      "18": 2,
+      "19": 2,
+      "22": 1,
+      "23": 1,
+      "26": 1,
+      "28": 1
+    }
+  }
+}

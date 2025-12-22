@@ -1,0 +1,69 @@
+{
+  "config": "configs/aihub_71874_paths.yaml",
+  "evalset": "experiments\\retrieval_tuning\\eval_tl.jsonl",
+  "rows": 1000,
+  "ts_index": "ts_coarse",
+  "tl_index": "tl_coarse",
+  "backend_ts": "flat",
+  "backend_tl": "flat",
+  "kts": 4,
+  "kdoc": 30,
+  "out_k": 22,
+  "fusion_mode": "quota",
+  "tl_quota": 20,
+  "ts_quota": 2,
+  "quota_strategy": "tl_first",
+  "no_self_hit": true,
+  "metrics": {
+    "ts_support_base": {
+      "count": 103,
+      "rate": 0.103,
+      "kts": 4
+    },
+    "ts_support_in_fused": {
+      "count": 77,
+      "rate": 0.077,
+      "ts_quota": 2
+    },
+    "ts_rescue": {
+      "count": 5,
+      "rate": 0.005
+    },
+    "tl_hit_qaid": {
+      "count": 0,
+      "rate": 0.0
+    },
+    "tl_hit_domain": {
+      "count": 985,
+      "rate": 0.985
+    },
+    "tl_hit_domqt_at_kdoc": {
+      "count": 936,
+      "rate": 0.936,
+      "kdoc": 30
+    },
+    "tl_hit_domqt_at_tlquota": {
+      "count": 920,
+      "rate": 0.92,
+      "tl_quota": 20
+    },
+    "fused_domqt": {
+      "count": 920,
+      "rate": 0.92
+    },
+    "fused_any": {
+      "count": 925,
+      "rate": 0.925
+    },
+    "tl_top1_self_hit_raw": {
+      "count": 1000,
+      "rate": 1.0
+    },
+    "tl_top1_self_hit_filt": {
+      "count": 0,
+      "rate": 0.0
+    },
+    "self_skipped_total": 1000
+  },
+  "elapsed_sec": 11.432
+}

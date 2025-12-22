@@ -16,6 +16,29 @@
 2. **Modular RAG**: Basic → Modular → Corrective RAG 모듈식 구현
 3. **Ablation 연구**: 체계적인 컴포넌트별 기여도 측정
 4. **LangGraph 활용**: 순환 로직 및 상태 관리 최적화
+5. **Entity Extraction A/B**: MedCAT vs QuickUMLS vs KM-BERT NER 비교 실험
+
+### 🆕 최신 업데이트 (2025-12-16)
+
+**Agentic RAG 고도화 및 심사 피드백 반영**
+
+1. **RAG 시스템 간 비교**: Basic RAG vs Modular RAG vs Corrective RAG
+2. **RAGAS 3축 평가**: Faithfulness / Answer Relevancy / Context Precision
+3. **개인화 강화**: 슬롯 기반 메모리 + 정책 레이어 + 조건부 Refine
+4. **의료 안전 트리아지**: 경고증상 감지 + 답변 모드 전환
+
+**빠른 시작**:
+```bash
+# RAG 변형 비교 실험
+python experiments/run_rag_variants_comparison.py --patient-id P001 --turns 5
+
+# RAGAS 평가
+python experiments/evaluate_rag_variants.py runs/rag_variants_comparison/comparison_P001_*.json
+```
+
+**관련 문서**:
+- `PERSONALIZED_RAG_ENHANCEMENT_GUIDE.md` - 고도화 가이드
+- `ENHANCEMENT_IMPLEMENTATION_SUMMARY.md` - 구현 요약
 
 ---
 
@@ -539,6 +562,18 @@ Basic → Modular → Corrective
 - ✅ 통계 분석 (t-test)
 - ✅ 설문조사 방식 추가 (대체 방안)
 - ✅ RAGAS 평가 개선 가이드 문서 추가
+
+### v1.3 (2025-12-16)
+
+**Entity Extraction A/B 통합**:
+- ✅ Entity AB Router 추가 (`extraction/entity_ab_router.py`)
+- ✅ 환경 변수 기반 extractor 교체 (medcat|quickumls|kmbert_ner)
+- ✅ KM-BERT NER 학습 스크립트 개선 (`scripts/train_kmbert_ner.py`)
+- ✅ CoNLL 형식 지원 (dataset-agnostic)
+- ✅ NER/링킹 평가 지표 통합 (strict/overlap F1, Accuracy@k, MRR)
+- ✅ 배치 비교 실험 자동화 (`cli/run_batch_compare.py`)
+- ✅ 통합 전략 문서 (`ENTITY_AB_INTEGRATION_STRATEGY.md`)
+- ✅ 환경 변수 설정 가이드 업데이트 (`env_template.txt`)
 
 ---
 

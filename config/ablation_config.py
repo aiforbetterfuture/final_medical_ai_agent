@@ -128,6 +128,216 @@ ABLATION_PROFILES = {
             "quality_threshold": 0.5,
         }
     },
+
+    # ============================================================
+    # 고도화 프로파일 (개인화 강화)
+    # ============================================================
+
+    # === 슬롯 기반 메모리 강화 ===
+    "personalized_slot_memory": {
+        "description": "슬롯 기반 구조화 메모리 (confidence/provenance/TTL 포함)",
+        "features": {
+            "self_refine_enabled": True,
+            "quality_check_enabled": True,
+            "llm_based_quality_check": True,
+            "dynamic_query_rewrite": True,
+            "duplicate_detection": True,
+            "progress_monitoring": True,
+            "max_refine_iterations": 2,
+            "quality_threshold": 0.6,
+            # 메모리 강화 설정
+            "memory_mode": "structured",  # structured/hierarchical/none
+            "profile_update_enabled": True,
+            "temporal_weight_enabled": True,
+            "slot_confidence_tracking": True,  # 슬롯별 신뢰도 추적
+            "slot_provenance_tracking": True,  # 근거 추적
+            "slot_conflict_detection": True,  # 모순 감지
+        }
+    },
+
+    # === 개인화 정책 레이어 ===
+    "personalized_policy_layer": {
+        "description": "컨텍스트 완전성 기반 질문/답변 라우팅",
+        "features": {
+            "self_refine_enabled": True,
+            "quality_check_enabled": True,
+            "llm_based_quality_check": True,
+            "dynamic_query_rewrite": True,
+            "duplicate_detection": True,
+            "progress_monitoring": True,
+            "max_refine_iterations": 2,
+            "quality_threshold": 0.6,
+            # 정책 레이어 설정
+            "context_completeness_check": True,  # 컨텍스트 완전성 점수
+            "personalization_gate": True,  # 개인화 안전성 판단
+            "action_routing": True,  # ASK_CLARIFY/RETRIEVE/ANSWER 선택
+            "required_slots_check": True,  # 필수 슬롯 확인
+        }
+    },
+
+    # === 컨텍스트 기반 쿼리 재작성 ===
+    "contextual_query_rewrite": {
+        "description": "사용자 슬롯을 반영한 동적 쿼리 재작성",
+        "features": {
+            "self_refine_enabled": True,
+            "quality_check_enabled": True,
+            "llm_based_quality_check": True,
+            "dynamic_query_rewrite": True,
+            "duplicate_detection": True,
+            "progress_monitoring": True,
+            "max_refine_iterations": 2,
+            "quality_threshold": 0.6,
+            # 쿼리 재작성 강화
+            "slot_aware_query_expansion": True,  # 슬롯 기반 쿼리 확장
+            "query_expansion_count": 3,  # 2~4개 쿼리로 확장
+            "retrieval_diversity_constraint": True,  # MMR 기반 중복 억제
+            "user_context_reranking": True,  # 사용자 적합도 재랭킹
+        }
+    },
+
+    # === 컨텍스트 패킷 표준화 ===
+    "context_packet_standard": {
+        "description": "토큰 예산 기반 컨텍스트 주입 통제",
+        "features": {
+            "self_refine_enabled": True,
+            "quality_check_enabled": True,
+            "llm_based_quality_check": True,
+            "dynamic_query_rewrite": True,
+            "duplicate_detection": True,
+            "progress_monitoring": True,
+            "max_refine_iterations": 2,
+            "quality_threshold": 0.6,
+            # 컨텍스트 패킷 설정
+            "use_context_manager": True,
+            "budget_aware_retrieval": True,
+            "context_packet_priority": True,  # A(확정) > B(불확실) > C(이력) > D(근거)
+            "context_conflict_resolution": True,  # 충돌 시 사용자 확인
+            "include_history": True,
+            "include_profile": True,
+            "include_evidence": True,
+            "include_personalization": True,
+        }
+    },
+
+    # === 조건부 Refine 실행 ===
+    "conditional_refine": {
+        "description": "리스크 기반 조건부 Refine 실행 (비용 절감)",
+        "features": {
+            "self_refine_enabled": True,
+            "quality_check_enabled": True,
+            "llm_based_quality_check": True,
+            "dynamic_query_rewrite": True,
+            "duplicate_detection": True,
+            "progress_monitoring": True,
+            "max_refine_iterations": 2,
+            "quality_threshold": 0.7,  # 더 높은 임계값
+            # 조건부 실행 설정
+            "refine_risk_detection": True,  # 리스크 탐지기
+            "refine_skip_on_pass": True,  # 통과 시 Refine 생략
+            "refine_early_termination": True,  # 명확한 종료 조건
+            "refine_checklist": [
+                "citation_missing",  # 근거 인용 누락
+                "contradiction",  # 모순
+                "question_unanswered",  # 질문 미응답
+                "medical_warning_missing",  # 의료 경고 누락
+            ],
+        }
+    },
+
+    # === 검증 가능 개인화 ===
+    "verifiable_personalization": {
+        "description": "개인화 근거를 답변에 명시 (검증 가능)",
+        "features": {
+            "self_refine_enabled": True,
+            "quality_check_enabled": True,
+            "llm_based_quality_check": True,
+            "dynamic_query_rewrite": True,
+            "duplicate_detection": True,
+            "progress_monitoring": True,
+            "max_refine_iterations": 2,
+            "quality_threshold": 0.6,
+            # 검증 가능성 설정
+            "include_personalization_evidence": True,  # "당신이 이전에 말한 ○○..."
+            "include_information_status": True,  # "현재 알려진 정보는 A/B..."
+            "include_confirmation_needed": True,  # "C는 아직 확인이 필요합니다"
+            "privacy_aware": True,  # 민감정보 노출 최소화
+        }
+    },
+
+    # === 의료 안전 트리아지 ===
+    "medical_safety_triage": {
+        "description": "경고증상 감지 시 답변 모드 전환 (안전 우선)",
+        "features": {
+            "self_refine_enabled": True,
+            "quality_check_enabled": True,
+            "llm_based_quality_check": True,
+            "dynamic_query_rewrite": True,
+            "duplicate_detection": True,
+            "progress_monitoring": True,
+            "max_refine_iterations": 2,
+            "quality_threshold": 0.6,
+            # 안전 트리아지 설정
+            "red_flag_detection": True,  # 경고증상 감지
+            "severity_classification": True,  # 중증도 분류
+            "emergency_mode_switch": True,  # 응급 모드 전환
+            "diagnostic_prohibition": True,  # 진단 단정 금지
+            "uncertainty_disclosure": True,  # 불확실성 고지
+            "specialist_referral": True,  # 전문의 상담 권고
+        }
+    },
+
+    # === 최종 고도화 (모든 개선 포함) ===
+    "advanced_personalized_rag": {
+        "description": "최종 고도화: 슬롯 메모리 + 정책 레이어 + 조건부 Refine + 안전 트리아지",
+        "features": {
+            "self_refine_enabled": True,
+            "quality_check_enabled": True,
+            "llm_based_quality_check": True,
+            "dynamic_query_rewrite": True,
+            "duplicate_detection": True,
+            "progress_monitoring": True,
+            "max_refine_iterations": 3,
+            "quality_threshold": 0.7,
+            # 메모리 강화
+            "memory_mode": "structured",
+            "profile_update_enabled": True,
+            "temporal_weight_enabled": True,
+            "slot_confidence_tracking": True,
+            "slot_provenance_tracking": True,
+            "slot_conflict_detection": True,
+            # 정책 레이어
+            "context_completeness_check": True,
+            "personalization_gate": True,
+            "action_routing": True,
+            "required_slots_check": True,
+            # 쿼리 재작성
+            "slot_aware_query_expansion": True,
+            "query_expansion_count": 3,
+            "retrieval_diversity_constraint": True,
+            "user_context_reranking": True,
+            # 컨텍스트 패킷
+            "use_context_manager": True,
+            "budget_aware_retrieval": True,
+            "context_packet_priority": True,
+            "context_conflict_resolution": True,
+            # 조건부 Refine
+            "refine_risk_detection": True,
+            "refine_skip_on_pass": True,
+            "refine_early_termination": True,
+            # 검증 가능성
+            "include_personalization_evidence": True,
+            "include_information_status": True,
+            "include_confirmation_needed": True,
+            "privacy_aware": True,
+            # 안전 트리아지
+            "red_flag_detection": True,
+            "severity_classification": True,
+            "emergency_mode_switch": True,
+            "diagnostic_prohibition": True,
+            "uncertainty_disclosure": True,
+            "specialist_referral": True,
+        }
+    },
 }
 
 

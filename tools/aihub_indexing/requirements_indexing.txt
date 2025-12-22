@@ -1,0 +1,11 @@
+pyyaml>=6.0
+tqdm>=4.66
+numpy>=1.26
+orjson>=3.10
+sentence-transformers>=3.0
+transformers>=4.43
+torch>=2.3
+
+# Optional ANN backend (HNSW). On Windows + Python 3.13 you may hit build errors.
+# If you want HNSW indexing, install separately (recommended: Python 3.11 venv):
+#   python -m pip install -r tools/aihub_indexing/requirements_hnsw_optional.txt

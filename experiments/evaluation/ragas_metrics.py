@@ -125,7 +125,7 @@ def calculate_ragas_metrics(
             if 'faithfulness' in df.columns:
                 final_scores['faithfulness'] = float(df['faithfulness'].iloc[0])
             if 'answer_relevancy' in df.columns:
-                final_scores['answer_relevance'] = float(df['answer_relevancy'].iloc[0])
+                final_scores['answer_relevancy'] = float(df['answer_relevancy'].iloc[0])
         elif isinstance(results, dict):
             final_scores = results
         else:

@@ -1,0 +1,3 @@
+# add these to your repo .gitignore
+data/aihub_71874/
+data/_extracted_cache/

@@ -10,7 +10,20 @@
 # ===================================================================
 
 # -------------------------------------------------------------------
-# MedCAT 설정 (⭐ 필수)
+# Entity Extraction 설정 (⭐ 필수)
+# -------------------------------------------------------------------
+
+# 사용할 Entity Extractor 선택 (medcat|quickumls|kmbert_ner)
+# - medcat: MedCAT (UMLS 기반 concept extraction/linking)
+# - quickumls: QuickUMLS (UMLS 문자열 매칭)
+# - kmbert_ner: KM-BERT NER (한국어 의료 NER)
+ENTITY_EXTRACTOR=medcat
+
+# Entity AB 설정 파일 경로 (선택)
+ENTITY_AB_CONFIG=configs/default.yaml
+
+# -------------------------------------------------------------------
+# MedCAT 설정
 # -------------------------------------------------------------------
 
 # MedCAT 모델팩 경로 (절대 경로 사용 권장)
@@ -18,6 +31,30 @@ MEDCAT2_MODEL_PATH=C:\Users\KHIDI\Downloads\final_medical_ai_agent\medcat2\mc_mo
 
 # MedCAT Confidence Threshold (0.0-1.0)
 MEDCAT_CONFIDENCE_THRESHOLD=0.5
+
+# -------------------------------------------------------------------
+# QuickUMLS 설정
+# -------------------------------------------------------------------
+
+# QuickUMLS 인덱스 디렉토리 (빌드 필요)
+# 빌드 방법: bash scripts/build_quickumls_index.sh /path/to/UMLS ./data/quickumls_index
+QUICKUMLS_INDEX_DIR=data/quickumls_index
+
+# QuickUMLS 설정
+QUICKUMLS_THRESHOLD=0.7
+QUICKUMLS_SIMILARITY_NAME=jaccard
+QUICKUMLS_WINDOW=5
+
+# -------------------------------------------------------------------
+# KM-BERT NER 설정
+# -------------------------------------------------------------------
+
+# KM-BERT NER 체크포인트 경로 (fine-tuning 후)
+# 학습 방법: python scripts/train_kmbert_ner.py --output_dir models/kmbert_ner_kbmc
+KMBERT_NER_DIR=models/kmbert_ner_kbmc
+
+# KM-BERT Base Model (fine-tuning 전)
+KMBERT_BASE_MODEL=madatnlp/km-bert
 
 # -------------------------------------------------------------------
 # OpenAI API 설정 (⭐ 필수)

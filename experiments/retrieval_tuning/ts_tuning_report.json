@@ -1,0 +1,35 @@
+{
+  "config": "configs/aihub_71874_paths.yaml",
+  "index": "ts_coarse",
+  "backend": "flat",
+  "index_file": "data\\aihub_71874\\indexes\\ts_coarse_flat.npy",
+  "meta_file": "data\\aihub_71874\\indexes\\ts_coarse_meta.jsonl",
+  "model_name": "intfloat/multilingual-e5-base",
+  "samples": 200,
+  "missing": 0,
+  "query_sources": {
+    "title": 0,
+    "origin_file": 200
+  },
+  "topk": 20,
+  "query_prefix": "query: ",
+  "max_query_chars": 300,
+  "metrics": {
+    "hit_at_k": 0.99,
+    "mrr": 0.853683667940247,
+    "rank_hist": {
+      "1": 157,
+      "2": 19,
+      "3": 4,
+      "4": 3,
+      "5": 4,
+      "6": 3,
+      "7": 2,
+      "8": 1,
+      "9": 2,
+      "11": 1,
+      "13": 1,
+      "19": 1
+    }
+  }
+}
