@@ -55,6 +55,11 @@ data/index/**/*
 data/quickumls/
 quickumls_index/
 
+# AIHub 인덱스 파일 (대용량)
+data/aihub_71874/indexes/*.npy
+data/aihub_71874/indexes/*.npy.json
+data/aihub_71874/processed/*.jsonl
+
 # 환자 데이터 (민감 정보 가능)
 data/patients/
 data/patient_data/
@@ -66,6 +71,7 @@ data/patient_data/
 *.h5
 *.parquet
 *.feather
+*.npy
 
 # -------------------------------------------------------------------
 # Python 캐시 및 가상환경
