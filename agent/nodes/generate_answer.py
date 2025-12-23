@@ -15,16 +15,21 @@ def generate_answer_node(state: AgentState) -> AgentState:
     """
     print("[Node] generate_answer")
     
-    # LLM 설정 로드
+    # LLM 설정 로드 (재현성을 위해 고정 파라미터 사용)
     llm_config = get_llm_config()
+    temperature = 0.0
+    top_p = 1.0
+    max_tokens = llm_config.get('max_tokens', 1000)
+    model = llm_config.get('model', 'gpt-4o-mini')
+    provider = llm_config.get('provider', 'openai')
     
     # LLM 클라이언트 초기화
     if 'llm_client' not in state:
         llm_client = get_llm_client(
-            provider=llm_config.get('provider', 'openai'),
-            model=llm_config.get('model', 'gpt-4o-mini'),
-            temperature=llm_config.get('temperature', 0.7),
-            max_tokens=llm_config.get('max_tokens', 1000)
+            provider=provider,
+            model=model,
+            temperature=temperature,
+            max_tokens=max_tokens
         )
         state['llm_client'] = llm_client
     else:
@@ -40,7 +45,10 @@ def generate_answer_node(state: AgentState) -> AgentState:
         
         answer = llm_client.generate(
             prompt=combined_user_prompt,
-            system_prompt=state['system_prompt']
+            system_prompt=state['system_prompt'],
+            temperature=temperature,
+            top_p=top_p,
+            max_tokens=max_tokens
         )
     except Exception as e:
         print(f"[ERROR] 답변 생성 실패: {e}")
@@ -48,6 +56,14 @@ def generate_answer_node(state: AgentState) -> AgentState:
     
     return {
         **state,
-        'answer': answer
+        'answer': answer,
+        # 로그 스키마 고정 일부
+        'generation_params': {
+            'provider': provider,
+            'model': model,
+            'temperature': temperature,
+            'top_p': top_p,
+            'max_tokens': max_tokens,
+        },
     }
 

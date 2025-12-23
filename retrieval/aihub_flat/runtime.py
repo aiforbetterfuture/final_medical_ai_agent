@@ -1,85 +1,113 @@
-# retrieval/aihub_flat/runtime.py
 from __future__ import annotations
-from dataclasses import dataclass
+
 from pathlib import Path
-import os
-from typing import Any, Dict, Tuple
+from typing import Any, Optional, Tuple, Union
 
 import yaml
 
 from .config import AIHubIndexConfig
 from .fused_retriever import AIHubFusedRetriever
 
-DEFAULT_RUNTIME_YAML = Path("configs/aihub_retrieval_runtime.yaml")
+PathLike = Union[str, Path]
 
-def _read_yaml(path: Path) -> Dict[str, Any]:
-    return yaml.safe_load(path.read_text(encoding="utf-8"))
 
-def build_retriever_from_runtime_yaml(
-    runtime_yaml: str | None = None,
-) -> Tuple[AIHubFusedRetriever, Dict[str, Any]]:
+def _repo_root_from(path: Path) -> Path:
+    # .../final_medical_ai_agent/retrieval/aihub_flat/runtime.py  -> repo_root
+    return path.resolve().parents[2]
+
+
+def read_runtime_yaml(runtime_yaml: Optional[PathLike] = "auto",
+                      *,
+                      repo_root: Optional[Path] = None) -> Tuple[dict[str, Any], Optional[Path]]:
     """
-    Build retriever using fixed runtime YAML.
-    Priority:
-      1) explicit runtime_yaml arg
-      2) env AIHUB_RETRIEVAL_RUNTIME_YAML
-      3) configs/aihub_retrieval_runtime.yaml
+    Returns: (runtime_dict, resolved_path_or_None)
+
+    - runtime_yaml="auto" or None: tries <repo_root>/configs/aihub_retrieval_runtime.yaml
+    - runtime_yaml as str/Path: resolves relative paths under repo_root
     """
-    y = runtime_yaml or os.getenv("AIHUB_RETRIEVAL_RUNTIME_YAML") or str(DEFAULT_RUNTIME_YAML)
-    ypath = Path(y)
+    root = repo_root or _repo_root_from(Path(__file__))
 
-    if not ypath.exists():
-        raise FileNotFoundError(f"Runtime YAML not found: {ypath}")
+    if runtime_yaml is None or str(runtime_yaml).strip().lower() in ("auto", ""):
+        cand = root / "configs" / "aihub_retrieval_runtime.yaml"
+    else:
+        cand = Path(runtime_yaml)
+        if not cand.is_absolute():
+            cand = (root / cand)
 
-    cfgd = _read_yaml(ypath)
+    cand = cand.resolve()
 
-    # 기존 실험 코드에서 쓰던 AIHubIndexConfig가 이미 존재하므로,
-    # 여기서는 '필드명이 달라도' 최소한으로 안전하게 세팅합니다.
-    # (필드명이 정확히 일치하면 그대로 반영되고,
-    #  일부가 다르면 아래 set-attr 구간에서 넘어갑니다.)
-    cfg = AIHubIndexConfig.default()
+    if not cand.exists():
+        return {}, None
 
-    # --- safest generic setattr mapping ---
-    mapping = {
-        # indices/backends
-        "ts_index": ["ts_index", "ts_name", "ts_index_name", "ts"],
-        "tl_index": ["tl_index", "tl_name", "tl_index_name", "tl"],
-        "backend": ["backend"],
+    with cand.open("r", encoding="utf-8") as f:
+        data = yaml.safe_load(f) or {}
 
-        # pools/topk
-        "kdoc": ["kdoc", "topk_doc", "topk_coarse_docs", "topk_docs"],
-        "kts_pool": ["kts_pool", "kts", "topk_ts", "topk_ts_final", "topk_ts_pool"],
+    if not isinstance(data, dict):
+        return {}, cand
+    return data, cand
 
-        # fusion selection
-        "fusion_mode": ["fusion_mode"],
-        "out_k": ["out_k", "topk_out", "fused_topk"],
-        "tl_quota": ["tl_quota"],
-        "ts_quota": ["ts_quota"],
-        "quota_strategy": ["quota_strategy"],
 
-        # rrf
-        "rrf_k": ["rrf_k"],
+def _set(cfg: AIHubIndexConfig, field: str, value: Any) -> None:
+    # AIHubIndexConfig is typically a frozen dataclass -> use object.__setattr__
+    if hasattr(cfg, field):
+        object.__setattr__(cfg, field, value)
 
-        # self-hit
-        "no_self_hit_tl": ["no_self_hit_tl", "no_self_hit", "no_self_hit(TL)"],
-    }
 
-    def _try_set(key: str, value: Any) -> None:
-        for cand in mapping.get(key, []):
-            if hasattr(cfg, cand):
-                setattr(cfg, cand, value)
-                return
-        # 못 찾으면 조용히 무시(레포 필드명이 다른 경우 대비)
-        return
+def apply_runtime_to_cfg(cfg: AIHubIndexConfig,
+                         runtime: dict[str, Any],
+                         *,
+                         index_dir_override: Optional[PathLike] = None) -> AIHubIndexConfig:
+    """
+    Maps runtime-yaml knobs into cfg fields where they exist.
+    Anything not representable in cfg stays in retriever.runtime dict.
+    """
+    if index_dir_override:
+        _set(cfg, "index_dir", Path(index_dir_override))
 
-    for k, v in cfgd.items():
-        if k in mapping:
-            _try_set(k, v)
+    # Common knobs used in your repo
+    if "kdoc" in runtime:
+        kdoc = int(runtime["kdoc"])
+        _set(cfg, "topk_coarse_docs", kdoc)
+        # TL pool is aligned to kdoc (kept large); quota will cut later.
+        _set(cfg, "topk_tl_final", kdoc)
 
-    # paths_config는 retriever가 내부에서 index_dir 등을 읽을 때 필요하면 사용
-    # (AIHubFusedRetriever.build가 config 파일을 직접 받는 구조라면 여기를 맞춰주면 됩니다.)
-    if "paths_config" in cfgd and hasattr(cfg, "paths_config"):
-        setattr(cfg, "paths_config", cfgd["paths_config"])
+    if "kts_pool" in runtime:
+        _set(cfg, "topk_ts_final", int(runtime["kts_pool"]))
+
+    if "rrf_k" in runtime:
+        _set(cfg, "rrf_k", int(runtime["rrf_k"]))
+
+    # Optional weights (if present in yaml)
+    if "weight_ts" in runtime:
+        _set(cfg, "weight_ts", float(runtime["weight_ts"]))
+    if "weight_tl" in runtime:
+        _set(cfg, "weight_tl", float(runtime["weight_tl"]))
+
+    return cfg
+
+
+def build_retriever_from_runtime_yaml(runtime_yaml: Optional[PathLike] = "auto",
+                                     *args: Any,
+                                     **kwargs: Any) -> AIHubFusedRetriever:
+    """
+    SSOT builder (backward compatible):
+    - Reads configs/aihub_retrieval_runtime.yaml (or provided path)
+    - Applies cfg-representable knobs to AIHubIndexConfig
+    - Stores the full runtime dict on retriever.runtime
+
+    Supported kwargs:
+      - cfg_base: Optional[AIHubIndexConfig]
+      - index_dir_override: Optional[str|Path]
+    """
+    cfg_base: Optional[AIHubIndexConfig] = kwargs.get("cfg_base", None)
+    index_dir_override = kwargs.get("index_dir_override", None)
+
+    runtime, resolved = read_runtime_yaml(runtime_yaml)
+
+    cfg = cfg_base or AIHubIndexConfig.default()
+    cfg = apply_runtime_to_cfg(cfg, runtime, index_dir_override=index_dir_override)
 
     r = AIHubFusedRetriever.build(cfg)
-    return r, cfgd
+    r.runtime = runtime
+    r.runtime_yaml_path = resolved
+    return r
