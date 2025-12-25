@@ -1,181 +1,160 @@
 from __future__ import annotations
 
+"""
+retrieval.aihub_flat.demo_cli
+
+CLI for smoke-testing TS/TL retrieval + fusion.
+
+Drop-in patch:
+- Adds --json_out to write full retrieval output to a JSON file (utf-8).
+- Makes stdout/stderr more robust on Windows consoles (cp949) to avoid UnicodeEncodeError.
+"""
+
 import argparse
 import json
-import os
 import sys
 from pathlib import Path
-from typing import Any, Dict, Optional
 
-import numpy as np
-
-from retrieval.aihub_flat.config import AIHubIndexConfig
-from retrieval.aihub_flat.fused_retriever import AIHubFusedRetriever
+from .config import AIHubIndexConfig
+from .fused_retriever import AIHubFusedRetriever
 
 
 def _force_utf8_stdout() -> None:
-    """
-    Windows PowerShell 기본 cp949에서 UnicodeEncodeError 방지.
-    Python 3.7+ 에서만 reconfigure 지원.
-    """
-    try:
-        sys.stdout.reconfigure(encoding="utf-8", errors="replace")  # type: ignore[attr-defined]
-        sys.stderr.reconfigure(encoding="utf-8", errors="replace")  # type: ignore[attr-defined]
-    except Exception:
-        pass
+    # Windows PowerShell default encoding can be cp949; printing Korean/Unicode may error.
+    for stream_name in ("stdout", "stderr"):
+        stream = getattr(sys, stream_name, None)
+        if stream is None:
+            continue
+        reconfig = getattr(stream, "reconfigure", None)
+        if callable(reconfig):
+            try:
+                reconfig(encoding="utf-8", errors="replace")
+            except Exception:
+                pass
 
 
-def _safe_text(x: Any) -> str:
-    if x is None:
-        return ""
-    s = str(x)
-    return s
-
-
-def _write_json(path: Path, obj: Any) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("w", encoding="utf-8") as f:
-        json.dump(obj, f, ensure_ascii=False, indent=2)
-
-
-def main():
+def main(argv: list[str] | None = None) -> int:
     _force_utf8_stdout()
 
     p = argparse.ArgumentParser()
+    p.add_argument("--index_dir", type=str, default=None, help="indexes 폴더 (기본: data/aihub_71874/indexes)")
+    p.add_argument("--runtime_yaml", type=str, default="auto", help='runtime yaml 경로 또는 "auto"')
     p.add_argument("--query", type=str, required=True)
     p.add_argument("--domain_id", type=int, default=None)
-    p.add_argument("--runtime_yaml", type=str, default=None, help="configs/aihub_retrieval_runtime.yaml (기본: auto)")
-    p.add_argument("--index_dir", type=str, default=None, help="indexes 폴더 override")
+
     p.add_argument("--show_cfg", action="store_true")
     p.add_argument("--debug_keys", action="store_true")
-    p.add_argument("--max_ts_text", type=int, default=240)
-    p.add_argument("--max_tl_q", type=int, default=260)
+    p.add_argument("--json_out", type=str, default="", help="Write full output JSON to this path (utf-8).")
 
-    # ✅ 재현성 체크용 JSON 저장 옵션
-    p.add_argument("--json_out", type=str, default=None, help="결과를 JSON으로 저장 (e.g., out1.json)")
-    p.add_argument("--seed", type=int, default=0)
-
-    args = p.parse_args()
-
-    # (optional) seed 고정: numpy만이라도 고정
-    try:
-        np.random.seed(int(args.seed))
-    except Exception:
-        pass
+    args = p.parse_args(argv)
 
     cfg = AIHubIndexConfig.default()
-
-    # index_dir override
     if args.index_dir:
-        object.__setattr__(cfg, "index_dir", Path(args.index_dir))
+        cfg = AIHubIndexConfig(index_dir=Path(args.index_dir))
 
-    # build (runtime_yaml 포함: quota/out_k/tlq/tsq는 retriever.runtime 에 저장되어야 함)
     r = AIHubFusedRetriever.build(cfg, runtime_yaml=args.runtime_yaml)
-
     out = r.retrieve_fused(args.query, domain_id=args.domain_id)
 
-    # runtime/cfg 요약 (있는 경우)
-    runtime_yaml_path = getattr(r, "runtime_yaml", None)
-    runtime_dict = getattr(r, "runtime", {}) or {}
-    cfg_dict = {
-        "index_dir": str(getattr(r.cfg, "index_dir", "")),
-        "topk_coarse_docs": int(getattr(r.cfg, "topk_coarse_docs", 0)),
-        "topk_ts_final": int(getattr(r.cfg, "topk_ts_final", 0)),
-        "topk_tl_final": int(getattr(r.cfg, "topk_tl_final", 0)),
-        "rrf_k": int(getattr(r.cfg, "rrf_k", 0)),
-        "weight_ts": float(getattr(r.cfg, "weight_ts", 0.0)),
-        "weight_tl": float(getattr(r.cfg, "weight_tl", 0.0)),
-    }
+    # Optional JSON output (determinism checks / debugging)
+    if args.json_out:
+        try:
+            payload = {
+                "query": args.query,
+                "domain_id": args.domain_id,
+                "runtime_yaml_arg": args.runtime_yaml,
+                "runtime_yaml_resolved": str(getattr(r, "runtime_yaml_path", "") or ""),
+                "runtime": getattr(r, "runtime", {}) or {},
+                "cfg": {
+                    "index_dir": str(cfg.index_dir),
+                    "topk_coarse_docs": int(cfg.topk_coarse_docs),
+                    "topk_ts_final": int(cfg.topk_ts_final),
+                    "topk_tl_final": int(cfg.topk_tl_final),
+                    "rrf_k": int(cfg.rrf_k),
+                    "weight_ts": float(getattr(cfg, "weight_ts", 1.0)),
+                    "weight_tl": float(getattr(cfg, "weight_tl", 1.0)),
+                },
+                "output": out,
+            }
+            fused_ranked = out.get("fused_ranked")
+            # Convenience: top-level fused_ranked/fused_keys for quick diff checks
+            payload["fused_ranked"] = fused_ranked if isinstance(fused_ranked, list) else []
+            payload["fused_keys"] = [x.get("key") for x in payload["fused_ranked"] if isinstance(x, dict)]
+            payload["schema_version"] = 1
+            Path(args.json_out).write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+            print(f"[OK] wrote json_out: {args.json_out}")
+        except Exception as e:
+            print(f"[WARN] failed to write json_out: {e}")
 
     if args.show_cfg:
+        ry = getattr(r, "runtime_yaml_path", None)
         print("\n==== RUNTIME YAML (auto/resolved) ====")
-        print("runtime_yaml :", str(runtime_yaml_path or args.runtime_yaml or "(auto)"))
-        if runtime_dict:
-            for k in [
-                "ts_index",
-                "tl_index",
-                "backend",
-                "kdoc",
-                "kts_pool",
-                "rrf_k",
-                "fusion_mode",
-                "out_k",
-                "tl_quota",
-                "ts_quota",
-                "quota_strategy",
+        print("runtime_yaml :", str(ry) if ry else "(none)")
+        if getattr(r, "runtime", None):
+            keys = [
+                "ts_index", "tl_index", "backend", "kdoc", "kts_pool", "rrf_k",
+                "fusion_mode", "out_k", "tl_quota", "ts_quota", "quota_strategy",
                 "no_self_hit_tl",
-            ]:
-                if k in runtime_dict:
-                    print(f"{k:14s}: {runtime_dict.get(k)}")
-        print("=====================================")
+            ]
+            for k in keys:
+                if k in r.runtime:
+                    print(f"{k:<13}: {r.runtime.get(k)}")
+        else:
+            print("(runtime yaml not found or empty)")
+        print("=====================================\n")
 
-        print("\n==== FINAL CFG (selected fields) ====")
-        for k, v in cfg_dict.items():
-            print(f"{k:14s}: {v}")
+        print("==== FINAL CFG (selected fields) ====")
+        print("index_dir       :", cfg.index_dir)
+        print("topk_coarse_docs:", cfg.topk_coarse_docs)
+        print("topk_ts_final   :", cfg.topk_ts_final)
+        print("topk_tl_final   :", cfg.topk_tl_final)
+        print("rrf_k           :", cfg.rrf_k)
+        print("weight_ts       :", getattr(cfg, "weight_ts", None))
+        print("weight_tl       :", getattr(cfg, "weight_tl", None))
         print("====================================\n")
 
-    # debug: key list
     if args.debug_keys:
-        ts0 = out.get("ts_context", [])[:1]
-        tl0 = out.get("tl_hints", [])[:1]
-        if ts0:
-            print("[DEBUG] First TS item keys:", sorted(list(ts0[0].keys())))
-        if tl0:
-            print("[DEBUG] First TL item keys:", sorted(list(tl0[0].keys())))
+        ts0 = out["ts_context"][0] if out.get("ts_context") else None
+        tl0 = out["tl_hints"][0] if out.get("tl_hints") else None
+        f0 = out["fused_ranked"][0] if out.get("fused_ranked") else None
+
+        if isinstance(ts0, dict):
+            print("[DEBUG] First TS item keys:", sorted(list(ts0.keys())))
+        if isinstance(tl0, dict):
+            print("[DEBUG] First TL item keys:", sorted(list(tl0.keys())))
+        if isinstance(f0, dict):
+            print("[DEBUG] First FUSED item keys:", sorted(list(f0.keys())))
         print()
 
-    # pretty print
     print("\n=== TS CONTEXT (evidence pool) ===")
     for i, x in enumerate(out.get("ts_context", []), 1):
-        score = float(x.get("score", 0.0))
-        lid = x.get("lid")
-        doc_id = x.get("doc_id")
-        chunk_id = x.get("chunk_id")
-        origin_path = x.get("origin_path")
-        print(f"[TS#{i}] score={score:.4f} lid={lid} doc_id={doc_id} chunk_id={chunk_id}")
-        if origin_path:
-            print("  origin_path:", _safe_text(origin_path))
-        txt = (_safe_text(x.get("text"))[: int(args.max_ts_text)]).replace("\n", " ")
+        if not isinstance(x, dict):
+            continue
+        print(f"[TS#{i}] score={x.get('score', 0.0):.4f} lid={x.get('lid')} doc_id={x.get('doc_id')} chunk_id={x.get('chunk_id')}")
+        op = x.get("origin_path")
+        if op:
+            print("  origin_path:", op)
+        txt = (x.get("text") or "")[:240].replace("\n", " ")
         print(" ", txt, "...\n")
 
     print("\n=== TL HINTS (hint pool) ===")
     for i, x in enumerate(out.get("tl_hints", []), 1):
-        score = float(x.get("score", 0.0))
-        lid = x.get("lid")
-        qa_id = x.get("qa_id")
-        domain_id = x.get("domain_id")
-        q_type = x.get("q_type")
-        origin_path = x.get("origin_path")
-        print(f"[TL#{i}] score={score:.4f} lid={lid} qa_id={qa_id} domain_id={domain_id} q_type={q_type}")
-        if origin_path:
-            print("  origin_path:", _safe_text(origin_path))
-        q = _safe_text(x.get("question"))
+        if not isinstance(x, dict):
+            continue
+        print(f"[TL#{i}] score={x.get('score', 0.0):.4f} lid={x.get('lid')} qa_id={x.get('qa_id')} domain_id={x.get('domain_id')} q_type={x.get('q_type')}")
+        op = x.get("origin_path")
+        if op:
+            print("  origin_path:", op)
+        q = (x.get("question") or "")
         if q:
-            print(" ", q[: int(args.max_tl_q)].replace("\n", " "), "...\n")
+            print(" ", q[:260].replace("\n", " "), "...\n")
         else:
             print("  (no question text in meta)\n")
 
-    fused = out.get("fused_ranked", []) or []
-    # fused 구성 카운트
-    n_ts = sum(1 for it in fused if str(it.get("key", "")).startswith("TS::") or str(it.get("source", "")).startswith("ts_"))
-    n_tl = len(fused) - n_ts
-    fm = runtime_dict.get("fusion_mode", "rrf")
+    c = out.get("fused_counts") or {"total": len(out.get("fused_ranked", [])), "tl": None, "ts": None}
     print("\n=== FUSED (what the system will actually use) ===")
-    print(f"fusion_mode={fm}  fused_total={len(fused)}  TL={n_tl}  TS={n_ts}")
-
-    # ✅ json_out 저장
-    if args.json_out:
-        payload: Dict[str, Any] = {
-            "query": args.query,
-            "domain_id": args.domain_id,
-            "runtime_yaml": str(runtime_yaml_path or args.runtime_yaml or ""),
-            "runtime": runtime_dict,
-            "cfg": cfg_dict,
-            "result": out,  # fused_ranked / ts_context / tl_hints / use_opts 등 포함
-        }
-        _write_json(Path(args.json_out), payload)
-        print("\n[OK] saved json_out:", args.json_out)
+    print(f"fusion_mode={out.get('fusion_mode')}  fused_total={c.get('total')}  TL={c.get('tl')}  TS={c.get('ts')}")
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

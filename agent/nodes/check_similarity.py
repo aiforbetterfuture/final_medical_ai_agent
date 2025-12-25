@@ -7,7 +7,7 @@ and retrieves cached responses if similarity is high enough.
 
 from typing import Dict, Any
 from agent.state import AgentState
-from memory.response_cache import ResponseCache, ResponseStyleVariator
+from agent.memory.response_cache import ResponseCache, ResponseStyleVariator
 from core.utils import is_llm_mode
 import time
 

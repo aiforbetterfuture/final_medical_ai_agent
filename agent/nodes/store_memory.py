@@ -3,8 +3,8 @@
 """
 
 from agent.state import AgentState
-from memory.profile_store import ProfileStore
-from memory.hierarchical_memory import HierarchicalMemorySystem
+from agent.memory.profile_store import ProfileStore
+from agent.memory.hierarchical_memory import HierarchicalMemorySystem
 from core.utils import is_llm_mode
 
 
